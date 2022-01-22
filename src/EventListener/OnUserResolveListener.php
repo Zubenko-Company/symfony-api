@@ -26,7 +26,6 @@ class OnUserResolveListener
     {
         /** @var User $user */
         $user = $this->userProvider->loadUserByIdentifier($event->getUsername());
-//dd($event);
         if(!$this->userPasswordHasher->isPasswordValid($user, $event->getPassword())) {
             return;
         }
