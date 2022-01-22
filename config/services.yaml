@@ -27,3 +27,9 @@ services:
     App\EventListener\OnUserResolveListener:
         tags:
             - { name: kernel.event_listener, event: league.oauth2_server.event.user_resolve, method: onUserResolve }
+
+    App\EventListener\CheckPassportSubscriber:
+        arguments:
+            - '@Doctrine\Persistence\ManagerRegistry'
+        tags:
+            - { name: kernel.event_subscriber, event: league.oauth2_server.listener.check_scope, method: test }

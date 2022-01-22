@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Doctrine\Persistence\ManagerRegistry;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,6 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\User;
+use League\Bundle\OAuth2ServerBundle\Entity\Client;
 
 class UserController extends AbstractController
 {
@@ -28,11 +30,36 @@ class UserController extends AbstractController
      * @Security(name="Bearer")
      */
     #[Route('/api/me', name: 'getUser', methods: ['GET'], format: "json")]
-    public function index(Request $request, SerializerInterface $serializer): Response
+    public function index(Request $request, ManagerRegistry $doctrine): Response
     {
-        $currentUser = $serializer->serialize($this->getUser(), 'json');
+        $entityManager = $doctrine->getManager();
 
+        /** @var User $user */
+        $user = $this->getUser();
 
-        return new Response($currentUser, Response::HTTP_OK);
+        $sql = "SELECT * FROM symfony.oauth2_client where identifier='{$user->getClientId()}'";
+
+        $conn = $entityManager->getConnection();
+        $stmt = $conn->prepare($sql);
+        $response = $stmt->executeQuery();
+
+        try {
+            $clientName = $response->fetchAll()[0]['name'];
+        } catch (\Exception $e) {
+            $clientName = null;
+        }
+        $response = [
+            'email' => $user->getEmail(),
+            'client' => $clientName,
+        ];
+
+        return new Response(json_encode($response), Response::HTTP_OK);
+    }
+
+    private function getBearerToken(Request $request): string
+    {
+        preg_match('/Bearer\s(\S+)/', $request->headers->get('Authorization'), $matches);
+
+        return $matches[1];
     }
 }
