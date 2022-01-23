@@ -68,6 +68,10 @@ class UserController extends AbstractController
      *
      * Registrate user info
      *
+     * @OA\RequestBody(
+     *     @Model(type=CreateUserEntity::class)
+     * )
+     *
      * @OA\Response(
      *     response=201,
      *     description="Create new user",
