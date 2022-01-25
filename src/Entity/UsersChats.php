@@ -37,6 +37,9 @@ class UsersChats
         return $this;
     }
 
+    /**
+     * @return Chats::class
+     */
     public function getChat()
     {
         return $this->chat;

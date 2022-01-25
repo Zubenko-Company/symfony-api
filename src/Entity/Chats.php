@@ -24,9 +24,13 @@ class Chats
     #[ORM\OneToMany(mappedBy: 'chat', targetEntity: UsersChats::class)]
     private $usersChats;
 
+    #[ORM\OneToMany(mappedBy: 'chat', targetEntity: Messages::class)]
+    private $messages;
+
     public function __construct()
     {
         $this->usersChats = new ArrayCollection();
+        $this->messages = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -82,6 +86,36 @@ class Chats
             // set the owning side to null (unless already changed)
             if ($usersChat->getChat() === $this) {
                 $usersChat->setChat(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Messages[]
+     */
+    public function getMessages(): Collection
+    {
+        return $this->messages;
+    }
+
+    public function addMessage(Messages $message): self
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages[] = $message;
+            $message->setChat($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMessage(Messages $message): self
+    {
+        if ($this->messages->removeElement($message)) {
+            // set the owning side to null (unless already changed)
+            if ($message->getChat() === $this) {
+                $message->setChat(null);
             }
         }
 
