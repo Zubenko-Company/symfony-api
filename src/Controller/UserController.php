@@ -49,10 +49,13 @@ class UserController extends AbstractController
 
         try {
             $clientName = $response->fetchAll()[0]['name'];
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $clientName = null;
         }
+
         $response = [
+            'id' => $user->getId(),
             'email' => $user->getEmail(),
             'firstname' => $user->getFirstname(),
             'lastname' => $user->getLastname(),
@@ -71,7 +74,6 @@ class UserController extends AbstractController
      * @OA\RequestBody(
      *     @Model(type=CreateUserEntity::class)
      * )
-     *
      * @OA\Response(
      *     response=201,
      *     description="Create new user",
@@ -85,8 +87,7 @@ class UserController extends AbstractController
         SerializerInterface         $serializer,
         ValidatorInterface          $validator,
         UserPasswordHasherInterface $passwordHasher
-    ): Response
-    {
+    ): Response {
         /** @var CreateUserEntity $newUserCred */
         $newUserCred = $serializer->deserialize($request->getContent(), CreateUserEntity::class, 'json');
         $errors = $validator->validate($newUserCred);

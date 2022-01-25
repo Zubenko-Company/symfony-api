@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -43,6 +45,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $avatar;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UsersChats::class)]
+    private $usersChats;
+
+    public function __construct()
+    {
+        $this->usersChats = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -164,6 +174,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setAvatar(?string $avatar): self
     {
         $this->avatar = $avatar;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|UsersChats[]
+     */
+    public function getUsersChats(): Collection
+    {
+        return $this->usersChats;
+    }
+
+    public function addUsersChat(UsersChats $usersChat): self
+    {
+        if (!$this->usersChats->contains($usersChat)) {
+            $this->usersChats[] = $usersChat;
+            $usersChat->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsersChat(UsersChats $usersChat): self
+    {
+        if ($this->usersChats->removeElement($usersChat)) {
+            // set the owning side to null (unless already changed)
+            if ($usersChat->getUser() === $this) {
+                $usersChat->setUser(null);
+            }
+        }
 
         return $this;
     }

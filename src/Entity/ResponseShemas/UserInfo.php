@@ -4,6 +4,8 @@ namespace App\Entity\ResponseShemas;
 
 class UserInfo
 {
+    private int $id;
+
     private string $email;
 
     private string $client;
@@ -13,6 +15,18 @@ class UserInfo
     private string $lastname;
 
     private string $avatar;
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+
+        return $this;
+    }
 
     public function getEmail(): string
     {
